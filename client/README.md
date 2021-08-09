@@ -1,3 +1,5 @@
+# [Udemy course](https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/learn/lecture/10554034?components=buy_button%2Cdiscount_expiration%2Cgift_this_course%2Cpurchase%2Cdeal_badge%2Credeem_coupon#overview)
+
 # Client
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.1.4.
