@@ -1,13 +1,9 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
-const user = require('../models/user');
 
-const router = express.Router();
-
-router.post('/signup', (req, res, next) => {
+exports.createUser = (req, res, next) => {
     bcrypt.hash(req.body.password, 10) // hash the PW
         .then(hash => {
             const user = new User({
@@ -16,24 +12,30 @@ router.post('/signup', (req, res, next) => {
             });
             user.save()
                 .then(result => {
-                    res.status(201).json({
-                        message: 'User created!',
-                        result: result
+                    const token = jwt.sign(
+                        { email: result.email, userId: result._id },
+                        process.env.JWT_KEY,
+                        { expiresIn: '1h' }
+                    );
+                    // return statement not needed as is end of code block
+                    res.status(200).json({
+                        token: token,
+                        expiresIn: 3600,
+                        userId: result._id
                     });
                 })
                 .catch(err => {
-                    res.status(500).json({
-                        error: err
+                    res.status(401).json({
+                        message: 'Invalid authentication credentials'
                     });
                 });
         });
-});
+};
 
-router.post('/login', (req, res, next) => {
+exports.loginUser = (req, res, next) => {
     let fetchedUser;
     User.findOne({ email: req.body.email })
         .then(user => {
-            console.log('user: ', user);
             if (!user) {
                 return res.status(401).json({
                     message: 'Auth failed'
@@ -43,27 +45,26 @@ router.post('/login', (req, res, next) => {
             return bcrypt.compare(req.body.password, user.password);
         })
         .then(result => {
-            console.log('result: ', result);
             if (!result) {
                 return res.status(401).json({
                     message: 'Auth failed'
                 });
             }
             const token = jwt.sign(
-                { email: fetchedUser.email, userId: fetchedUser._id }, 'short_development_secret',
+                { email: fetchedUser.email, userId: fetchedUser._id },
+                process.env.JWT_KEY,
                 { expiresIn: '1h' }
             );
             // return statement not needed as is end of code block
             res.status(200).json({
                 token: token,
-                expiresIn: 3600
+                expiresIn: 3600,
+                userId: fetchedUser._id
             });
         })
         .catch(err => {
-            console.log('err: ', err);
             return res.status(401).json({
-                message: 'Auth failed'
+                message: 'Invalid authentication credentials'
             });
         });
-});
-module.exports = router;
+};

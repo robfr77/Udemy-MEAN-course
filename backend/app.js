@@ -6,18 +6,18 @@ const postsRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
 const app = express();
 
-mongoose.connect('mongodb+srv://rob:q7ihLebLsBA6yXt@cluster0.c6yto.mongodb.net/node-angular?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(`mongodb+srv://rob:${process.env.MONGO_ATLAS_PW}@cluster0.c6yto.mongodb.net/node-angular?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
-        console.log('DB connected');
+        // DB connected
     })
     .catch(() => {
-        console.log('DB connection failed');
+        // DB connection failed
     });
 mongoose.set('useCreateIndex', true);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/images', express.static(path.join('backend/images')));
+app.use('/images', express.static(path.join('images')));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
